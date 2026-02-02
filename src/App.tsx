@@ -18,6 +18,7 @@ import Plans from "@/pages/public/Plans";
 import Terms from "@/pages/public/Terms";
 import Privacy from "@/pages/public/Privacy";
 import FAQ from "@/pages/public/FAQ";
+import PrivacyDashboard from "@/pages/privacy/Dashboard";
 import Login from "@/pages/auth/Login";
 import Register from "@/pages/auth/Register";
 import ForgotPassword from "@/pages/auth/ForgotPassword";
@@ -25,6 +26,7 @@ import ResetPassword from "@/pages/auth/ResetPassword";
 import RoleSelection from "@/pages/onboarding/RoleSelection";
 import SubscriptionSuccess from "@/pages/subscription/Success";
 import SubscriptionCanceled from "@/pages/subscription/Canceled";
+import SubscriptionPage from "@/pages/subscription/Index";
 import NotFound from "@/pages/NotFound";
 
 // Patient pages
@@ -52,7 +54,10 @@ import AdminDashboard from "@/pages/admin/Dashboard";
 import Users from "@/pages/admin/Users";
 import Subscriptions from "@/pages/admin/Subscriptions";
 import Coupons from "@/pages/admin/Coupons";
+import AdminMetrics from "@/pages/admin/Metrics";
 import Logs from "@/pages/admin/Logs";
+import AdminCompliance from "@/pages/admin/Compliance";
+import { CookieConsent } from "@/components/privacy/CookieConsent";
 
 const queryClient = new QueryClient();
 
@@ -64,6 +69,7 @@ const App = () => (
           <TooltipProvider>
             <Toaster />
             <Sonner />
+            <CookieConsent />
             <Routes>
               {/* Public */}
               <Route path="/" element={<Landing />} />
@@ -74,13 +80,15 @@ const App = () => (
               <Route path="/planos" element={<Plans />} />
               <Route path="/subscription/success" element={<ProtectedRoute><SubscriptionSuccess /></ProtectedRoute>} />
               <Route path="/subscription/canceled" element={<ProtectedRoute><SubscriptionCanceled /></ProtectedRoute>} />
+              <Route path="/subscription" element={<ProtectedRoute><SubscriptionPage /></ProtectedRoute>} />
               <Route path="/terms" element={<Terms />} />
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/faq" element={<FAQ />} />
-              
+              <Route path="/privacy/dashboard" element={<ProtectedRoute><PrivacyDashboard /></ProtectedRoute>} />
+
               {/* Onboarding */}
               <Route path="/onboarding/role" element={<ProtectedRoute><RoleSelection /></ProtectedRoute>} />
-              
+
               {/* Patient */}
               <Route path="/patient" element={<RoleRoute role="patient"><PatientLayout /></RoleRoute>}>
                 <Route index element={<PatientDashboard />} />
@@ -94,7 +102,7 @@ const App = () => (
                 <Route path="therapist" element={<MyTherapist />} />
                 <Route path="profile" element={<PatientProfile />} />
               </Route>
-              
+
               {/* Therapist */}
               <Route path="/therapist" element={<RoleRoute role="therapist"><TherapistLayout /></RoleRoute>}>
                 <Route index element={<TherapistDashboard />} />
@@ -104,16 +112,18 @@ const App = () => (
                 <Route path="schedule" element={<Schedule />} />
                 <Route path="profile" element={<TherapistProfile />} />
               </Route>
-              
+
               {/* Admin */}
               <Route path="/admin" element={<RoleRoute role="admin"><AdminLayout /></RoleRoute>}>
                 <Route index element={<AdminDashboard />} />
                 <Route path="users" element={<Users />} />
                 <Route path="subscriptions" element={<Subscriptions />} />
                 <Route path="coupons" element={<Coupons />} />
+                <Route path="metrics" element={<AdminMetrics />} />
+                <Route path="compliance" element={<AdminCompliance />} />
                 <Route path="logs" element={<Logs />} />
               </Route>
-              
+
               <Route path="/dashboard" element={<AuthRedirect />} />
               <Route path="*" element={<NotFound />} />
             </Routes>

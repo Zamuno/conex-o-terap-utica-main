@@ -77,6 +77,9 @@ const engagementLabels = {
   low: 'Baixo',
 };
 
+import { usePlan } from '@/hooks/use-plan';
+import { useNavigate } from 'react-router-dom';
+
 const PatientList = () => {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -84,6 +87,9 @@ const PatientList = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
+
+  const { canAddPatient, isLoading: isLoadingPlan } = usePlan();
+  const navigate = useNavigate();
 
   // Fetch patients linked to therapist
   const { data: patientsData = [], isLoading } = useQuery({
@@ -135,7 +141,7 @@ const PatientList = () => {
           // Count check-ins in last 7 days for engagement
           const sevenDaysAgo = new Date();
           sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-          
+
           const { count: checkInCount } = await supabase
             .from('check_ins')
             .select('*', { count: 'exact', head: true })
@@ -223,6 +229,23 @@ const PatientList = () => {
       .slice(0, 2);
   };
 
+  const handleInviteClick = () => {
+    if (!canAddPatient(activePatients.length)) {
+      toast({
+        title: "Limite do plano atingido",
+        description: "Você atingiu o limite de pacientes do seu plano. Faça upgrade para adicionar mais.",
+        variant: "destructive",
+        action: (
+          <Button variant="outline" size="sm" onClick={() => navigate('/subscription')}>
+            Ver Planos
+          </Button>
+        ),
+      });
+      return;
+    }
+    setInviteDialogOpen(true);
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -237,7 +260,7 @@ const PatientList = () => {
         title="Pacientes"
         description="Gerencie seus pacientes e acompanhe seu progresso"
       >
-        <Button onClick={() => setInviteDialogOpen(true)}>
+        <Button onClick={handleInviteClick}>
           <UserPlus className="mr-2 h-4 w-4" />
           Convidar Paciente
         </Button>

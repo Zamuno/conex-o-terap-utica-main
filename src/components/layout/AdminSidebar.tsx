@@ -2,6 +2,7 @@ import { NavLink, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import {
   LayoutDashboard,
+  BarChart3,
   Users,
   CreditCard,
   Ticket,
@@ -9,6 +10,7 @@ import {
   LogOut,
   ChevronLeft,
   ChevronRight,
+  Shield,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -16,9 +18,11 @@ import { useState } from 'react';
 
 const menuItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/admin' },
+  { icon: BarChart3, label: 'Métricas', path: '/admin/metrics' },
   { icon: Users, label: 'Usuários', path: '/admin/users' },
   { icon: CreditCard, label: 'Assinaturas', path: '/admin/subscriptions' },
   { icon: Ticket, label: 'Cupons', path: '/admin/coupons' },
+  { icon: Shield, label: 'Compliance', path: '/admin/compliance' },
   { icon: FileText, label: 'Logs', path: '/admin/logs' },
 ];
 
