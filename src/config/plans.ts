@@ -23,7 +23,7 @@ export const PATIENT_PLANS: PlanConfig[] = [
     product_id: 'prod_TrGnGXJjteXpy6',
     plan_key: 'patient_essential',
     name: 'Essencial',
-    price: 24.90,
+    price: 17.00,
     role: 'patient',
     description: 'Acompanhamento emocional completo',
     features: [

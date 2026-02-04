@@ -40,7 +40,7 @@ export function useCheckout() {
       console.error('Checkout error:', err);
       toast({
         title: 'Erro ao iniciar pagamento',
-        description: err instanceof Error ? err.message : 'Tente novamente mais tarde.',
+        description: err instanceof Error ? err.message : 'Tente novamente mais tarde. Verifique o console para mais detalhes.',
         variant: 'destructive',
       });
     } finally {
