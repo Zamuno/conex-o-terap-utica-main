@@ -1,5 +1,5 @@
-import { Shield, Users, LifeBuoy, Info } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { Shield, Users, HeartHandshake, Sparkles } from "lucide-react";
+import { FeatureCard } from "@/components/landing/FeatureCard";
 
 export const LandingContent = () => {
     const cards = [
@@ -14,42 +14,37 @@ export const LandingContent = () => {
             description: "Psicólogos verificados e comprometidos com a ética profissional.",
         },
         {
-            icon: LifeBuoy,
+            icon: HeartHandshake,
             title: "Apoio em Momentos Difíceis",
-            description: "Ferramentas para registrar suas emoções e compartilhar com seu terapeuta.",
+            description: "Um espaço seguro para registrar o que você sente e compartilhar no seu tempo.",
         },
         {
-            icon: Info,
+            icon: Sparkles,
             title: "Transparência e Limites",
-            description: "Uma plataforma de apoio que complementa, mas não substitui, o atendimento de emergência.",
+            description: "Uma plataforma que respeita seu ritmo, complementando o cuidado profissional.",
         },
     ];
 
     return (
-        <div className="h-full flex flex-col justify-center p-8 lg:p-12 bg-muted/30">
-            <div className="max-w-md mx-auto space-y-8">
-                <div className="space-y-2">
-                    <h2 className="text-2xl font-bold text-primary">Acompanhamento terapêutico contínuo entre sessões</h2>
-                    <p className="text-muted-foreground">
-                        O 149PSI é um ambiente profissional para apoio psicológico, com segurança, ética e respeito a você.
+        <div className="w-full max-w-lg p-6 lg:p-8 flex flex-col justify-center h-full max-h-screen">
+            <div className="space-y-6 lg:space-y-8">
+                <div className="space-y-3">
+                    <h2 className="text-2xl lg:text-3xl font-bold tracking-tight text-foreground/90 leading-tight">
+                        Cuidado terapêutico que continua entre as sessões
+                    </h2>
+                    <p className="text-base lg:text-lg text-muted-foreground leading-relaxed">
+                        O 149PSI conecta você ao seu bem-estar com segurança, ética e acolhimento.
                     </p>
                 </div>
 
-                <div className="grid gap-4">
+                <div className="grid gap-3 lg:gap-4">
                     {cards.map((card, index) => (
-                        <Card key={index} className="border-none shadow-sm bg-background/50 hover:bg-background transition-colors">
-                            <CardContent className="p-4 flex items-start gap-4">
-                                <div className="p-2 rounded-lg bg-primary/10 text-primary shrink-0">
-                                    <card.icon className="w-5 h-5" />
-                                </div>
-                                <div>
-                                    <h3 className="font-semibold text-sm mb-1">{card.title}</h3>
-                                    <p className="text-sm text-muted-foreground leading-relaxed">
-                                        {card.description}
-                                    </p>
-                                </div>
-                            </CardContent>
-                        </Card>
+                        <FeatureCard
+                            key={index}
+                            {...card}
+                            className="animate-in fade-in slide-in-from-bottom-4 transition-all"
+                            style={{ animationDelay: `${index * 100}ms` }}
+                        />
                     ))}
                 </div>
             </div>
