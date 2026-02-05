@@ -14,7 +14,7 @@ export const PatientLayout: React.FC = () => {
         <PatientSidebar />
       </div>
 
-      <main className="flex-1 overflow-auto pb-16 md:pb-0"> {/* Padding bottom for mobile nav */}
+      <main className="flex-1 overflow-auto pb-20 md:pb-0"> {/* Padding bottom for mobile nav */}
         <div className="flex justify-end p-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-10">
           <SupportButton />
         </div>

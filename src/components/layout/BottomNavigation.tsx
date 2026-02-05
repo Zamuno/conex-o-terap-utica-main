@@ -20,7 +20,7 @@ export function BottomNavigation() {
     const location = useLocation();
 
     return (
-        <nav className="fixed bottom-0 left-0 right-0 z-[9999] bg-background/80 backdrop-blur-lg border-t border-border pb-[env(safe-area-inset-bottom)] md:hidden touch-manipulation">
+        <nav className="fixed bottom-0 left-0 right-0 z-[9999] bg-background border-t border-border pb-[env(safe-area-inset-bottom)] md:hidden" style={{ touchAction: 'manipulation' }}>
             <div className="flex justify-around items-center h-16">
                 {mobileNavItems.map((item) => {
                     const isActive = location.pathname === item.path ||
@@ -30,10 +30,12 @@ export function BottomNavigation() {
                         <button
                             key={item.path}
                             onClick={() => navigate(item.path)}
+                            type="button"
                             className={cn(
-                                "flex flex-col items-center justify-center w-full h-full space-y-1 active:scale-95 transition-transform",
+                                "flex flex-col items-center justify-center w-full h-full space-y-1 active:scale-95 transition-transform cursor-pointer",
                                 isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
                             )}
+                            style={{ WebkitTapHighlightColor: 'transparent' }}
                         >
                             <item.icon
                                 className={cn(
