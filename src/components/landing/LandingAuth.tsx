@@ -200,14 +200,6 @@ export const LandingAuth = () => {
                         <span className="bg-background px-4 text-muted-foreground/80 font-medium">
                             ou continue com email
                         </span>
-                        <div className="mt-8 p-4 bg-muted/30 rounded-lg border border-border/50 text-xs text-muted-foreground break-all">
-                            <p className="font-semibold mb-1">Mobile Debug Info:</p>
-                            <p>Redirect URL: <span className="text-foreground select-all">{window.location.origin}/auth/callback</span></p>
-                            <p className="mt-1 opacity-70">Add this URL to Supabase &gt; Authentication &gt; URL Configuration</p>
-                        </div>
-                        <p className="text-center text-xs text-muted-foreground/60 pt-4">
-                            Plataforma ética e segura para pacientes e terapeutas.
-                        </p>
                     </div>
                 </div>
 
