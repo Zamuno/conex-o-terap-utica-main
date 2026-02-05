@@ -40,8 +40,9 @@ serve(async (req) => {
 
     return new Response(
       JSON.stringify({
-        active: !!subscription,
-        subscription: subscription
+        plan: subscription?.plan || 'none',
+        subscribed: !!subscription,
+        subscription_end: subscription?.current_period_end || null,
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
