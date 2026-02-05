@@ -173,7 +173,7 @@ const Diary = () => {
               placeholder="O que você gostaria de registrar hoje? Escreva livremente sobre seus pensamentos, sentimentos ou qualquer coisa que queira documentar..."
               value={newEntry}
               onChange={(e) => setNewEntry(e.target.value)}
-              className="min-h-[400px] resize-none text-base leading-relaxed"
+              className="min-h-[250px] md:min-h-[400px] resize-none text-base leading-relaxed bg-background/50 focus:bg-background transition-colors"
             />
             <div className="flex justify-end mt-4">
               <Button onClick={handleSave} disabled={createEntry.isPending}>
@@ -197,7 +197,7 @@ const Diary = () => {
         title="Meu Diário"
         description="Escreva livremente sobre seu dia e pensamentos"
       >
-        <Button onClick={() => setIsWriting(true)}>
+        <Button onClick={() => setIsWriting(true)} className="h-10 rounded-xl shadow-sm">
           <Plus className="mr-2 h-4 w-4" />
           Nova Entrada
         </Button>
