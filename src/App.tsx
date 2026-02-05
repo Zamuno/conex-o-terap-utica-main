@@ -64,6 +64,7 @@ import AdminMetrics from "@/pages/admin/Metrics";
 import Logs from "@/pages/admin/Logs";
 import AdminCompliance from "@/pages/admin/Compliance";
 import { CookieConsent } from "@/components/privacy/CookieConsent";
+import { ReloadPrompt } from "@/components/pwa/ReloadPrompt";
 
 const queryClient = new QueryClient();
 
@@ -76,6 +77,7 @@ const App = () => (
             <Toaster />
             <Sonner />
             <CookieConsent />
+            <ReloadPrompt />
             <Routes>
               {/* Public */}
               <Route path="/" element={<Landing />} />
