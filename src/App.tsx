@@ -42,6 +42,7 @@ import PatientProfile from "@/pages/patient/Profile";
 import MyTherapist from "@/pages/patient/MyTherapist";
 import SelfView from "@/pages/patient/SelfView";
 import IntakeFormPage from "@/pages/patient/IntakeForm";
+import MobileMenu from "@/pages/patient/MobileMenu";
 
 // Therapist pages
 import TherapistDashboard from "@/pages/therapist/Dashboard";
@@ -110,6 +111,7 @@ const App = () => (
                 <Route path="timeline" element={<Timeline />} />
                 <Route path="therapist" element={<MyTherapist />} />
                 <Route path="profile" element={<PatientProfile />} />
+                <Route path="menu" element={<MobileMenu />} />
               </Route>
 
               {/* Therapist */}

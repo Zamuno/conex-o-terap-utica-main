@@ -11,7 +11,7 @@ const mobileNavItems = [
     { icon: Home, label: 'Início', path: '/patient' },
     { icon: BookOpen, label: 'Diário', path: '/patient/diary' },
     { icon: Stethoscope, label: 'Terapia', path: '/patient/therapist' },
-    { icon: Menu, label: 'Menu', path: '/patient/profile' },
+    { icon: Menu, label: 'Menu', path: '/patient/menu' },
 ];
 
 export function BottomNavigation() {
