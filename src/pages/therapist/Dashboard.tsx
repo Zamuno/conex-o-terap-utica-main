@@ -14,6 +14,8 @@ import {
   ArrowRight,
   Clock,
   Heart,
+  CalendarClock,
+  FileText,
 } from 'lucide-react';
 import { format, startOfDay, endOfDay, subDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -147,7 +149,7 @@ const TherapistDashboard = () => {
           alerts.push({
             id: relation.patient_id,
             patient: relation.profiles?.full_name || 'Paciente',
-            message: lastCheckIn 
+            message: lastCheckIn
               ? `Não fez check-in há ${Math.floor((Date.now() - new Date(lastCheckIn.created_at).getTime()) / (1000 * 60 * 60 * 24))} dias`
               : 'Nenhum check-in registrado',
           });
@@ -160,7 +162,7 @@ const TherapistDashboard = () => {
   });
 
   // Calculate next session time
-  const nextSessionTime = todaySessions.length > 0 
+  const nextSessionTime = todaySessions.length > 0
     ? format(new Date(todaySessions[0].scheduled_at), 'HH:mm')
     : null;
 
@@ -173,50 +175,50 @@ const TherapistDashboard = () => {
   }
 
   return (
-    <div>
+    <div className="space-y-6 pb-20 lg:pb-0">
       <PageHeader
         title={`Olá, ${firstName}!`}
-        description="Aqui está um resumo do seu dia"
+        description="Resumo do seu dia profissional."
       />
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      {/* Stats Grid - Mobile Optimized */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           icon={Users}
           title="Pacientes Ativos"
           value={activePatientsCount.toString()}
-          description="Pacientes vinculados"
+          description="Total vinculados"
         />
         <StatCard
           icon={Calendar}
           title="Sessões Hoje"
           value={todaySessions.length.toString()}
-          description={nextSessionTime ? `Próxima às ${nextSessionTime}` : 'Nenhuma sessão hoje'}
+          description={nextSessionTime ? `Próxima: ${nextSessionTime}` : 'Agenda livre'}
         />
         <StatCard
           icon={Heart}
-          title="Check-ins Recebidos"
+          title="Novos Check-ins"
           value={recentCheckInsCount.toString()}
           description="Últimos 7 dias"
         />
         <StatCard
           icon={TrendingUp}
-          title="Taxa de Engajamento"
+          title="Engajamento"
           value={activePatientsCount > 0 ? `${Math.min(100, Math.round((recentCheckInsCount / (activePatientsCount * 7)) * 100))}%` : '0%'}
-          description="Baseado em check-ins"
+          description="Taxa Semanal"
         />
       </div>
 
       <div className="grid lg:grid-cols-2 gap-6">
         {/* Upcoming Sessions */}
-        <Card>
-          <CardHeader>
+        <Card className="shadow-sm">
+          <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <div>
                 <CardTitle className="text-lg">Próximas Sessões</CardTitle>
-                <CardDescription>Sua agenda para os próximos dias</CardDescription>
+                <CardDescription>Agenda recente</CardDescription>
               </div>
-              <Button variant="outline" size="sm" asChild>
+              <Button variant="ghost" size="sm" asChild className="h-9">
                 <Link to="/therapist/schedule">
                   Ver Agenda
                   <ArrowRight className="ml-2 h-4 w-4" />
@@ -226,30 +228,30 @@ const TherapistDashboard = () => {
           </CardHeader>
           <CardContent>
             {upcomingSessions.length > 0 ? (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {upcomingSessions.map((session) => (
                   <div
                     key={session.id}
-                    className="flex items-center justify-between p-3 rounded-lg bg-muted/50"
+                    className="flex items-center justify-between p-4 rounded-xl bg-muted/30 border border-border/40"
                   >
-                    <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                    <div className="flex items-center gap-4">
+                      <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                         <Clock className="h-5 w-5 text-primary" />
                       </div>
                       <div>
-                        <p className="font-medium text-foreground">
+                        <p className="font-medium text-foreground text-sm sm:text-base">
                           {session.profiles?.full_name || 'Paciente'}
                         </p>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-xs text-muted-foreground">
                           {session.session_type === 'online' ? 'Online' : 'Presencial'}
                         </p>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <p className="font-medium text-foreground">
+                    <div className="text-right shrink-0">
+                      <p className="font-semibold text-foreground text-sm sm:text-base">
                         {format(new Date(session.scheduled_at), 'HH:mm')}
                       </p>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-xs text-muted-foreground">
                         {format(new Date(session.scheduled_at), "d 'de' MMM", { locale: ptBR })}
                       </p>
                     </div>
@@ -265,34 +267,35 @@ const TherapistDashboard = () => {
           </CardContent>
         </Card>
 
-        {/* Alerts */}
-        <Card>
-          <CardHeader>
+        {/* Alerts - High Priority */}
+        <Card className="shadow-sm border-amber-200/50 bg-amber-50/30">
+          <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="text-lg">Alertas</CardTitle>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  Alertas <span className="flex h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
+                </CardTitle>
                 <CardDescription>Pacientes que precisam de atenção</CardDescription>
               </div>
-              <Button variant="outline" size="sm" asChild>
+              <Button variant="ghost" size="sm" asChild className="h-9">
                 <Link to="/therapist/patients">
                   Ver Todos
-                  <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
             </div>
           </CardHeader>
           <CardContent>
             {alertPatients.length > 0 ? (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {alertPatients.map((alert) => (
                   <div
                     key={alert.id}
-                    className="flex items-start gap-3 p-3 rounded-lg border border-amber-200 bg-amber-50"
+                    className="flex items-start gap-4 p-4 rounded-xl border border-amber-200/60 bg-white"
                   >
-                    <AlertCircle className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                    <AlertCircle className="h-5 w-5 text-amber-500 flex-shrink-0 mt-0.5" />
                     <div>
-                      <p className="font-medium text-amber-900">{alert.patient}</p>
-                      <p className="text-sm text-amber-700">{alert.message}</p>
+                      <p className="font-medium text-foreground text-sm sm:text-base">{alert.patient}</p>
+                      <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">{alert.message}</p>
                     </div>
                   </div>
                 ))}
@@ -307,29 +310,29 @@ const TherapistDashboard = () => {
         </Card>
       </div>
 
-      {/* Quick Actions */}
-      <Card className="mt-6">
+      {/* Quick Actions - Large Touch Targets */}
+      <Card className="shadow-sm">
         <CardHeader>
-          <CardTitle className="text-lg">Ações Rápidas</CardTitle>
+          <CardTitle className="text-lg">Gestão Rápida</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-wrap gap-3">
-            <Button variant="outline" asChild>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <Button variant="outline" className="h-14 justify-start px-4 text-base rounded-xl border-border/60 hover:bg-muted/50" asChild>
               <Link to="/therapist/patients">
-                <Users className="mr-2 h-4 w-4" />
-                Ver Pacientes
+                <Users className="mr-3 h-5 w-5 text-primary" />
+                Meus Pacientes
               </Link>
             </Button>
-            <Button variant="outline" asChild>
+            <Button variant="outline" className="h-14 justify-start px-4 text-base rounded-xl border-border/60 hover:bg-muted/50" asChild>
               <Link to="/therapist/notes">
-                <Heart className="mr-2 h-4 w-4" />
-                Anotações
+                <FileText className="mr-3 h-5 w-5 text-primary" />
+                Minhas Anotações
               </Link>
             </Button>
-            <Button variant="outline" asChild>
+            <Button variant="outline" className="h-14 justify-start px-4 text-base rounded-xl border-border/60 hover:bg-muted/50" asChild>
               <Link to="/therapist/schedule">
-                <Calendar className="mr-2 h-4 w-4" />
-                Agenda
+                <CalendarClock className="mr-3 h-5 w-5 text-primary" />
+                Gerenciar Agenda
               </Link>
             </Button>
           </div>

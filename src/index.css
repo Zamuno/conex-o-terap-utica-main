@@ -197,3 +197,41 @@
 .animate-fade-up {
   animation: fade-up 0.5s ease-out forwards;
 }
+
+/* Mobile optimizations */
+@layer base {
+  :root {
+    --sat: env(safe-area-inset-top);
+    --sar: env(safe-area-inset-right);
+    --sab: env(safe-area-inset-bottom);
+    --sal: env(safe-area-inset-left);
+  }
+  
+  /* Improve touch targets on mobile */
+  @media (max-width: 640px) {
+    button, 
+    input, 
+    select, 
+    textarea,
+    [role="button"] {
+      min-height: 44px;
+      font-size: 16px !important; /* Prevents iOS zoom */
+    }
+    
+    /* Better spacing for mobile lists */
+    .mobile-container {
+      padding-left: 1rem;
+      padding-right: 1rem;
+      padding-bottom: calc(4rem + var(--sab)); /* Space for bottom nav */
+    }
+  }
+}
+
+/* PWA Utilities */
+.pwa-safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.pwa-safe-area-top {
+  padding-top: env(safe-area-inset-top);
+}

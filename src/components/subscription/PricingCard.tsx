@@ -81,7 +81,7 @@ export function PricingCard({
           ) : isCurrentPlan ? (
             'Plano Atual'
           ) : plan.trialDays ? (
-            `Começar ${plan.trialDays} dias grátis`
+            'Faça o upgrade'
           ) : (
             'Assinar Agora'
           )}

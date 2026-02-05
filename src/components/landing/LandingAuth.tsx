@@ -4,18 +4,21 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Mail, Eye, EyeOff } from "lucide-react";
+import { Loader2, Mail, Eye, EyeOff, ArrowLeft, Heart, Sparkles, User, Stethoscope } from "lucide-react";
+
+type AuthView = 'hero' | 'login' | 'register_role' | 'register_form';
 
 export const LandingAuth = () => {
     const { signInWithGoogle, signIn, signUp, user, role, loading: authLoading, isRoleLoading } = useAuth();
     const navigate = useNavigate();
     const { toast } = useToast();
 
+    // View State Management
+    const [view, setView] = useState<AuthView>('hero');
     const [loading, setLoading] = useState(false);
-    const [showEmailForm, setShowEmailForm] = useState(false);
-    const [isRegister, setIsRegister] = useState(false);
 
-    // Form states
+    // Form States
+    const [showEmailForm, setShowEmailForm] = useState(false); // Used inside generic forms for email toggle
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [fullName, setFullName] = useState("");
@@ -32,7 +35,6 @@ export const LandingAuth = () => {
                 const paths = { patient: '/patient', therapist: '/therapist', admin: '/admin' };
                 navigate(paths[role], { replace: true });
             } else {
-                // If user has no role, redirect to onboarding regardless of how they signed up
                 navigate('/onboarding/role', { replace: true });
             }
         }
@@ -48,12 +50,11 @@ export const LandingAuth = () => {
 
     const handleGoogleLogin = async () => {
         try {
-            if (isRegister && !selectedRole) {
-                toast({ variant: "destructive", title: "Selecione se você é paciente ou terapeuta" });
+            if (view === 'register_form' && !selectedRole) {
+                toast({ variant: "destructive", title: "Erro de validação", description: "Role não selecionada." });
                 return;
             }
-            // Save role preference if selected (even for login context if they switched toggles, though less critical)
-            if (isRegister) savePendingRole();
+            if (view === 'register_form') savePendingRole();
 
             setLoading(true);
             const { error } = await signInWithGoogle();
@@ -71,14 +72,14 @@ export const LandingAuth = () => {
     const handleEmailSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (isRegister) {
-            // Registration Logic
+        if (view === 'register_form') {
+            // Registration Validation
             if (!email || !password || !fullName || !confirmPassword) {
                 toast({ variant: "destructive", title: "Preencha todos os campos" });
                 return;
             }
             if (!selectedRole) {
-                toast({ variant: "destructive", title: "Selecione se você é paciente ou terapeuta" });
+                toast({ variant: "destructive", title: "Função não selecionada" });
                 return;
             }
             if (password !== confirmPassword) {
@@ -89,22 +90,10 @@ export const LandingAuth = () => {
                 toast({ variant: "destructive", title: "A senha deve ter pelo menos 8 caracteres" });
                 return;
             }
-            if (!/[A-Z]/.test(password)) {
-                toast({ variant: "destructive", title: "A senha deve conter pelo menos uma letra maiúscula" });
-                return;
-            }
-            if (!/[a-z]/.test(password)) {
-                toast({ variant: "destructive", title: "A senha deve conter pelo menos uma letra minúscula" });
-                return;
-            }
-            if (!/[0-9!@#$%^&*(),.?":{}|<>]/.test(password)) {
-                toast({ variant: "destructive", title: "A senha deve conter pelo menos um número ou símbolo" });
-                return;
-            }
 
             try {
                 setLoading(true);
-                savePendingRole(); // Save role for the onboarding page to pick up
+                savePendingRole();
 
                 const { error } = await signUp(email, password, fullName);
                 if (error) throw error;
@@ -113,8 +102,8 @@ export const LandingAuth = () => {
                     title: "Conta criada com sucesso!",
                     description: "Verifique seu email para confirmar o cadastro.",
                 });
-                // Optionally reset form or switch to login mode, but usually standard is to wait for email usage
-                setIsRegister(false);
+                // Return to hero or login
+                setView('login');
             } catch (error: any) {
                 toast({
                     variant: "destructive",
@@ -151,70 +140,130 @@ export const LandingAuth = () => {
         }
     };
 
-    const toggleMode = () => {
-        setIsRegister(!isRegister);
-        // Reset sensitive fields/errors if any, keep email optionally
-        setPassword("");
-        setConfirmPassword("");
-        setSelectedRole(null);
-    };
+    // --- Sub-components (Views) ---
 
-    return (
-        <div className="flex flex-col justify-center min-h-[50vh] lg:min-h-screen p-6 lg:p-16 animate-in fade-in duration-700">
-            <div className="w-full max-w-sm mx-auto space-y-10">
-                <div className="space-y-3 text-center lg:text-left">
-                    <div className="inline-flex items-center gap-2 mb-6">
-                        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary font-bold text-xl shadow-sm">
-                            ψ
-                        </div>
-                        <span className="text-2xl font-bold tracking-tight text-foreground/80">149PSI</span>
+    // 1. Hero View
+    const HeroView = () => (
+        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="space-y-4 text-center lg:text-left">
+                <div className="inline-flex items-center gap-2 mb-2">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary font-bold text-2xl shadow-sm">
+                        ψ
                     </div>
-                    <h1 className="text-3xl lg:text-4xl font-bold tracking-tight text-foreground">
-                        {isRegister ? "Comece sua jornada" : "Olá, boas-vindas"}
-                    </h1>
+                    <span className="text-3xl font-bold tracking-tight text-foreground/90">149PSI</span>
+                </div>
+                <h1 className="text-4xl lg:text-5xl font-bold tracking-tight text-foreground leading-tight">
+                    Cuidar de si <br className="hidden lg:block" /> nunca foi tão simples.
+                </h1>
+                <p className="text-muted-foreground text-lg lg:text-xl max-w-md mx-auto lg:mx-0 leading-relaxed">
+                    Sua jornada de saúde mental com segurança, privacidade e acolhimento.
+                </p>
+            </div>
+
+            <div className="space-y-4 pt-4">
+                <Button
+                    className="w-full h-14 rounded-2xl text-lg font-medium shadow-md hover:shadow-lg transition-all"
+                    onClick={() => setView('login')}
+                >
+                    Entrar
+                </Button>
+                <Button
+                    variant="outline"
+                    className="w-full h-14 rounded-2xl text-lg font-medium border-2 hover:bg-muted/30 transition-all"
+                    onClick={() => setView('register_role')}
+                >
+                    Criar conta
+                </Button>
+            </div>
+            <p className="text-center text-xs text-muted-foreground/60 pt-4">
+                Plataforma ética e segura para pacientes e terapeutas.
+            </p>
+        </div>
+    );
+
+    // 2. Role Selection View
+    const RoleSelectionView = () => (
+        <div className="space-y-8 animate-in fade-in slide-in-from-right-8 duration-500">
+            <button
+                onClick={() => setView('hero')}
+                className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors -ml-2 p-2"
+            >
+                <ArrowLeft className="w-4 h-4 mr-1" /> Voltar
+            </button>
+
+            <div className="space-y-2">
+                <h2 className="text-3xl font-bold tracking-tight">Como você está usando o 149PSI hoje?</h2>
+                <p className="text-muted-foreground text-lg">Selecione o perfil que melhor se adapta a você.</p>
+            </div>
+
+            <div className="grid gap-4">
+                <button
+                    onClick={() => { setSelectedRole('patient'); setView('register_form'); }}
+                    className="flex items-center gap-4 p-6 rounded-2xl border-2 border-border/50 hover:border-primary/50 hover:bg-primary/5 transition-all group text-left"
+                >
+                    <div className="h-14 w-14 rounded-full bg-blue-100/50 flex items-center justify-center text-blue-600 group-hover:scale-110 transition-transform">
+                        <User className="h-7 w-7" />
+                    </div>
+                    <div>
+                        <span className="block text-xl font-semibold text-foreground">Sou Paciente</span>
+                        <span className="text-muted-foreground">Busco terapia e autoconhecimento</span>
+                    </div>
+                </button>
+
+                <button
+                    onClick={() => { setSelectedRole('therapist'); setView('register_form'); }}
+                    className="flex items-center gap-4 p-6 rounded-2xl border-2 border-border/50 hover:border-primary/50 hover:bg-primary/5 transition-all group text-left"
+                >
+                    <div className="h-14 w-14 rounded-full bg-emerald-100/50 flex items-center justify-center text-emerald-600 group-hover:scale-110 transition-transform">
+                        <Stethoscope className="h-7 w-7" />
+                    </div>
+                    <div>
+                        <span className="block text-xl font-semibold text-foreground">Sou Terapeuta</span>
+                        <span className="text-muted-foreground">Sou profissional de psicologia</span>
+                    </div>
+                </button>
+            </div>
+        </div>
+    );
+
+    // 3. Login & Register Forms
+    // Shared Logic Wrapper for Form
+    const AuthFormView = () => {
+        const isRegister = view === 'register_form';
+
+        return (
+            <div className="space-y-6 animate-in fade-in slide-in-from-right-8 duration-500">
+                <button
+                    onClick={() => setView(isRegister ? 'register_role' : 'hero')}
+                    className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors -ml-2 p-2"
+                >
+                    <ArrowLeft className="w-4 h-4 mr-1" /> Voltar
+                </button>
+
+                <div className="space-y-2">
+                    <h2 className="text-3xl font-bold tracking-tight">
+                        {isRegister
+                            ? (selectedRole === 'patient' ? "Conta Paciente" : "Conta Terapeuta")
+                            : "Bem-vindo de volta"
+                        }
+                    </h2>
                     <p className="text-muted-foreground text-lg">
                         {isRegister
-                            ? "Crie sua conta e acesse seu espaço de cuidado."
-                            : "Acesse seu espaço de cuidado terapêutico."}
+                            ? "Preencha seus dados para começar."
+                            : "Acesse sua conta para continuar."
+                        }
                     </p>
                 </div>
 
-                <div className="space-y-6">
-                    {isRegister && (
-                        <div className="grid grid-cols-2 gap-4 mb-2">
-                            <button
-                                type="button"
-                                onClick={() => setSelectedRole('patient')}
-                                className={`flex flex-col items-center justify-center p-4 rounded-2xl border transition-all duration-200 ${selectedRole === 'patient'
-                                    ? 'border-primary bg-primary/5 text-primary shadow-sm'
-                                    : 'border-border/50 hover:border-primary/30 hover:bg-muted/30 text-muted-foreground'
-                                    }`}
-                            >
-                                <span className="font-semibold text-lg">Paciente</span>
-                                <span className="text-xs mt-1 opacity-80">Busco terapia</span>
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setSelectedRole('therapist')}
-                                className={`flex flex-col items-center justify-center p-4 rounded-2xl border transition-all duration-200 ${selectedRole === 'therapist'
-                                    ? 'border-primary bg-primary/5 text-primary shadow-sm'
-                                    : 'border-border/50 hover:border-primary/30 hover:bg-muted/30 text-muted-foreground'
-                                    }`}
-                            >
-                                <span className="font-semibold text-lg">Terapeuta</span>
-                                <span className="text-xs mt-1 opacity-80">Sou profissional</span>
-                            </button>
-                        </div>
-                    )}
-
+                <div className="space-y-4">
                     <Button
                         variant="outline"
-                        className="w-full h-12 rounded-xl relative bg-white hover:bg-gray-50 text-gray-700 border-gray-200 shadow-sm font-normal text-base transition-all hover:shadow"
+                        className="w-full h-14 rounded-xl relative bg-white hover:bg-gray-50 text-gray-700 border-gray-200 shadow-sm font-medium text-base transition-all"
                         onClick={handleGoogleLogin}
                         disabled={loading}
                     >
-                        {loading ? (
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        {loading && !authLoading ? (
+                            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                         ) : (
                             <svg className="mr-3 h-5 w-5" viewBox="0 0 24 24">
                                 <path
@@ -238,185 +287,120 @@ export const LandingAuth = () => {
                         Continuar com Google
                     </Button>
 
-                    <div className="relative">
+                    <div className="relative py-2">
                         <div className="absolute inset-0 flex items-center">
-                            <span className="w-full border-t border-gray-100" />
+                            <span className="w-full border-t border-border" />
                         </div>
                         <div className="relative flex justify-center text-xs uppercase">
-                            <span className="bg-background px-4 text-muted-foreground/60 tracking-wider font-medium">
-                                ou continue com email
+                            <span className="bg-background px-4 text-muted-foreground/80 font-medium">
+                                ou
                             </span>
                         </div>
                     </div>
 
-                    {!showEmailForm ? (
-                        <div className="space-y-3">
-                            <Button
-                                variant="secondary"
-                                className="w-full h-12 rounded-xl font-normal text-base bg-secondary/50 hover:bg-secondary/80 text-secondary-foreground transition-all"
-                                onClick={() => { setShowEmailForm(true); setIsRegister(false); }}
-                                disabled={loading}
-                            >
-                                <Mail className="mr-2 h-4 w-4" />
-                                Entrar com Email
-                            </Button>
-                            <Button
-                                variant="ghost"
-                                className="w-full h-12 rounded-xl font-normal text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                                onClick={() => { setShowEmailForm(true); setIsRegister(true); }}
-                                disabled={loading}
-                            >
-                                Não tem conta? Cadastre-se
-                            </Button>
-                        </div>
+                    {!showEmailForm && !email ? (
+                        <Button
+                            variant="secondary"
+                            className="w-full h-14 rounded-xl font-medium text-base bg-secondary/50 hover:bg-secondary/80 text-secondary-foreground transition-all"
+                            onClick={() => setShowEmailForm(true)}
+                            disabled={loading}
+                        >
+                            <Mail className="mr-2 h-5 w-5" />
+                            {isRegister ? "Cadastrar com Email" : "Entrar com Email"}
+                        </Button>
                     ) : (
-                        <form onSubmit={handleEmailSubmit} className="space-y-4 animate-in fade-in slide-in-from-top-4 duration-500">
+                        <form onSubmit={handleEmailSubmit} className="space-y-4 animate-in fade-in slide-in-from-top-2">
                             {isRegister && (
-                                <div className="space-y-2">
-                                    <Input
-                                        placeholder="Nome Completo"
-                                        value={fullName}
-                                        onChange={(e) => setFullName(e.target.value)}
-                                        disabled={loading}
-                                        required
-                                        className="h-12 rounded-xl bg-muted/20 border-border/50 focus:bg-background transition-all"
-                                    />
-                                </div>
-                            )}
-
-                            <div className="space-y-2">
                                 <Input
-                                    type="email"
-                                    placeholder="Seu melhor email"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
+                                    placeholder="Nome Completo"
+                                    value={fullName}
+                                    onChange={(e) => setFullName(e.target.value)}
                                     disabled={loading}
                                     required
-                                    className="h-12 rounded-xl bg-muted/20 border-border/50 focus:bg-background transition-all"
+                                    className="h-14 rounded-xl bg-muted/30 border-border/60 focus:bg-background text-lg"
                                 />
+                            )}
+                            <Input
+                                type="email"
+                                placeholder="Seu email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                disabled={loading}
+                                required
+                                className="h-14 rounded-xl bg-muted/30 border-border/60 focus:bg-background text-lg"
+                            />
+
+                            <div className="relative">
+                                <Input
+                                    type={showPassword ? "text" : "password"}
+                                    placeholder="Senha"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    disabled={loading}
+                                    required
+                                    className="h-14 rounded-xl bg-muted/30 border-border/60 focus:bg-background pr-12 text-lg"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground p-1 h-8 w-8 flex items-center justify-center hover:bg-muted rounded-full"
+                                    tabIndex={-1}
+                                >
+                                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                                </button>
+                            </div>
+
+                            {isRegister && (
                                 <div className="relative">
                                     <Input
-                                        type={showPassword ? "text" : "password"}
-                                        placeholder="Senha"
-                                        value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
+                                        type={showConfirmPassword ? "text" : "password"}
+                                        placeholder="Confirme a senha"
+                                        value={confirmPassword}
+                                        onChange={(e) => setConfirmPassword(e.target.value)}
                                         disabled={loading}
                                         required
-                                        className="h-12 rounded-xl bg-muted/20 border-border/50 focus:bg-background pr-10 transition-all"
+                                        className="h-14 rounded-xl bg-muted/30 border-border/60 focus:bg-background pr-12 text-lg"
                                     />
                                     <button
                                         type="button"
-                                        onClick={() => setShowPassword(!showPassword)}
-                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors p-1"
+                                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                        className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground p-1 h-8 w-8 flex items-center justify-center hover:bg-muted rounded-full"
                                         tabIndex={-1}
                                     >
-                                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                        {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                                     </button>
                                 </div>
-                                {isRegister && password.length > 0 && (
-                                    <div className="space-y-3 py-2 px-1">
-                                        <div className="flex gap-1.5 h-1.5">
-                                            {[...Array(4)].map((_, i) => (
-                                                <div
-                                                    key={i}
-                                                    className={`h-full w-full rounded-full transition-all duration-500 ${i < (
-                                                        (password.length >= 8 ? 1 : 0) +
-                                                        (/[A-Z]/.test(password) ? 1 : 0) +
-                                                        (/[a-z]/.test(password) ? 1 : 0) +
-                                                        (/[0-9!@#$%^&*(),.?":{}|<>]/.test(password) ? 1 : 0)
-                                                    )
-                                                        ? (
-                                                            (
-                                                                (password.length >= 8 ? 1 : 0) +
-                                                                (/[A-Z]/.test(password) ? 1 : 0) +
-                                                                (/[a-z]/.test(password) ? 1 : 0) +
-                                                                (/[0-9!@#$%^&*(),.?":{}|<>]/.test(password) ? 1 : 0)
-                                                            ) <= 2 ? 'bg-red-400' :
-                                                                (
-                                                                    (password.length >= 8 ? 1 : 0) +
-                                                                    (/[A-Z]/.test(password) ? 1 : 0) +
-                                                                    (/[a-z]/.test(password) ? 1 : 0) +
-                                                                    (/[0-9!@#$%^&*(),.?":{}|<>]/.test(password) ? 1 : 0)
-                                                                ) === 3 ? 'bg-yellow-400' : 'bg-emerald-400'
-                                                        )
-                                                        : 'bg-muted'
-                                                        }`}
-                                                />
-                                            ))}
-                                        </div>
-                                        {/* Simplified hint list for cleaner design */}
-                                        <div className="text-xs text-muted-foreground">
-                                            Recomendamos: 8+ caracteres, maiúscula, minúscula e símbolo.
-                                        </div>
-                                    </div>
-                                )}
+                            )}
 
-                                {isRegister && (
-                                    <div className="relative">
-                                        <Input
-                                            type={showConfirmPassword ? "text" : "password"}
-                                            placeholder="Confirme sua senha"
-                                            value={confirmPassword}
-                                            onChange={(e) => setConfirmPassword(e.target.value)}
-                                            disabled={loading}
-                                            required
-                                            className="h-12 rounded-xl bg-muted/20 border-border/50 focus:bg-background pr-10 transition-all"
-                                        />
-                                        <button
-                                            type="button"
-                                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors p-1"
-                                            tabIndex={-1}
-                                        >
-                                            {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
-
-                            <Button type="submit" className="w-full h-12 rounded-xl font-medium text-base shadow-sm hover:shadow-md transition-all" disabled={loading}>
-                                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                {isRegister ? "Criar Conta" : "Entrar agora"}
+                            <Button type="submit" className="w-full h-14 rounded-xl font-semibold text-lg shadow-sm hover:shadow-md transition-all mt-2" disabled={loading}>
+                                {loading && <Loader2 className="mr-2 h-5 w-5 animate-spin" />}
+                                {isRegister ? "Concluir Cadastro" : "Acessar Conta"}
                             </Button>
-
-                            <div className="flex flex-col gap-4 text-center text-sm pt-2">
-                                {!isRegister && (
-                                    <Link to="/forgot-password" className="text-muted-foreground hover:text-primary transition-colors">
-                                        Esqueceu sua senha?
-                                    </Link>
-                                )}
-
-                                <div className="flex items-center justify-center gap-1.5">
-                                    <span className="text-muted-foreground">
-                                        {isRegister ? "Já tem uma conta?" : "Não tem uma conta?"}
-                                    </span>
-                                    <Button
-                                        type="button"
-                                        variant="link"
-                                        className="p-0 h-auto font-medium text-primary hover:underline"
-                                        onClick={toggleMode}
-                                    >
-                                        {isRegister ? "Entrar" : "Criar conta gratuita"}
-                                    </Button>
-                                </div>
-
-                                <Button
-                                    type="button"
-                                    variant="ghost"
-                                    className="h-auto p-0 font-normal text-muted-foreground/70 hover:text-foreground"
-                                    onClick={() => setShowEmailForm(false)}
-                                >
-                                    Voltar para opções
-                                </Button>
-                            </div>
                         </form>
                     )}
 
-                    <p className="text-xs text-center text-muted-foreground/60 leading-relaxed px-4 lg:px-0 pt-4">
-                        Protegido por reCAPTCHA e sujeito à <Link to="/privacy" className="underline hover:text-foreground">Política de Privacidade</Link> e <Link to="/terms" className="underline hover:text-foreground">Termos de Uso</Link> do 149PSI.
-                    </p>
+                    {!isRegister && !showEmailForm && (
+                        <div className="text-center pt-2">
+                            <Button
+                                variant="link"
+                                className="text-muted-foreground hover:text-primary transition-colors h-auto p-0"
+                                onClick={() => navigate('/forgot-password')}
+                            >
+                                Esqueceu sua senha?
+                            </Button>
+                        </div>
+                    )}
                 </div>
             </div>
+        );
+    }
+
+    // --- Main Render ---
+    return (
+        <div className="flex flex-col justify-center min-h-[80vh] lg:min-h-screen px-4 lg:px-16 py-8 w-full max-w-md mx-auto lg:max-w-md">
+            {view === 'hero' && <HeroView />}
+            {view === 'register_role' && <RoleSelectionView />}
+            {(view === 'login' || view === 'register_form') && <AuthFormView />}
         </div>
     );
 };
